@@ -1,35 +1,69 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { Menu, X, ShoppingCart } from "lucide-react";
 
 const Navbar = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    const links = ["Home", "Menu", "Cart", "About", "Contact"];
+
     return (
-        <nav className="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16 items-center">
-                    <div className="flex-shrink-0">
-                        <Link to="/">
-                            <h1 className="text-2xl font-bold text-green-600 cursor-pointer">
-                                Foodly
-                            </h1>
+        <header
+            className={`fixed top-0 left-0 w-full z-50 px-6 md:px-16 lg:px-24 py-4 flex justify-between items-center font-sans transition-all duration-500 ${
+                scrolled ? "bg-[#4B0000]/90 shadow-md" : "bg-transparent"
+            }`}
+        >
+            {/* Logo */}
+            <Link to="/" className="text-3xl md:text-4xl font-extrabold tracking-wide text-[#FFF5E1]">
+                Foodly.
+            </Link>
+
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex gap-10 text-lg text-[#FFF5E1]">
+                {links.map((link) => (
+                    <NavLink
+                        key={link}
+                        to={`/${link.toLowerCase()}`}
+                        className={({ isActive }) =>
+                            `transition-colors duration-300 ${
+                                isActive ? "text-[#FFB89C] font-semibold" : "hover:text-[#FFB89C]"
+                            }`
+                        }
+                    >
+                        {link}
+                    </NavLink>
+                ))}
+                <ShoppingCart className="w-6 h-6 cursor-pointer hover:text-[#FFB89C]" />
+            </nav>
+
+            {/* Mobile Menu */}
+            <button className="md:hidden text-[#FFF5E1]" onClick={() => setIsOpen(!isOpen)}>
+                {isOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+
+            {isOpen && (
+                <div className="md:hidden absolute top-16 left-0 w-full bg-[#4B0000]/90 flex flex-col items-center gap-6 py-6 text-[#FFF5E1] px-6">
+                    {links.map((link) => (
+                        <Link
+                            key={link}
+                            to={`/${link.toLowerCase()}`}
+                            onClick={() => setIsOpen(false)}
+                            className="hover:text-[#FFB89C] transition-colors"
+                        >
+                            {link}
                         </Link>
-                    </div>
-                    <div className="hidden md:flex space-x-6">
-                        <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-green-600">
-                            Home
-                        </Link>
-                        <Link to="/menu" className="text-gray-700 dark:text-gray-300 hover:text-green-600">
-                            Menu
-                        </Link>
-                        <Link to="/about" className="text-gray-700 dark:text-gray-300 hover:text-green-600">
-                            About
-                        </Link>
-                        <Link to="/contact" className="text-gray-700 dark:text-gray-300 hover:text-green-600">
-                            Contact
-                        </Link>
-                    </div>
+                    ))}
+                    <ShoppingCart className="w-5 h-5 hover:text-[#FFB89C]" />
                 </div>
-            </div>
-        </nav>
+            )}
+        </header>
     );
 };
 
