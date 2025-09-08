@@ -1,4 +1,8 @@
 import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
+import "swiper/css";
+
 import TestimonialImg from "../assets/burger.png"; // Replace with actual user images
 
 const Testimonials = () => {
@@ -27,6 +31,14 @@ const Testimonials = () => {
                 "The weekend special deals are my favorite. Great combo meals at affordable prices.",
             img: TestimonialImg,
         },
+        {
+            id: 4,
+            name: "David Brown",
+            role: "Food Blogger",
+            message:
+                "Tried their family pack last week. It was delicious and worth every penny!",
+            img: TestimonialImg,
+        },
     ];
 
     return (
@@ -38,42 +50,36 @@ const Testimonials = () => {
                 What Our Customers Say
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {testimonials.map((testi, index) => (
-                    <div
-                        key={testi.id}
-                        className="bg-[#FFF5E1] text-[#4B0000] rounded-3xl p-6 shadow-lg hover:scale-105 transition-transform relative"
-                        style={{
-                            animation: "fadeInUp 1s ease forwards",
-                            animationDelay: `${index * 0.2}s`,
-                            opacity: 0,
-                        }}
-                    >
-                        <div className="flex items-center mb-4">
-                            <img
-                                src={testi.img}
-                                alt={testi.name}
-                                className="w-16 h-16 rounded-full object-cover mr-4"
-                            />
-                            <div>
-                                <h3 className="font-bold text-lg">{testi.name}</h3>
-                                <p className="text-sm text-[#B35F2C]">{testi.role}</p>
+            <Swiper
+                modules={[Autoplay]}
+                autoplay={{ delay: 2500, disableOnInteraction: false }}
+                spaceBetween={30}
+                loop={true}
+                breakpoints={{
+                    640: { slidesPerView: 1 },
+                    768: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 },
+                }}
+            >
+                {testimonials.map((testi) => (
+                    <SwiperSlide key={testi.id}>
+                        <div className="bg-[#FFF5E1] text-[#4B0000] rounded-3xl p-6 shadow-lg hover:scale-105 transition-transform">
+                            <div className="flex items-center mb-4">
+                                <img
+                                    src={testi.img}
+                                    alt={testi.name}
+                                    className="w-16 h-16 rounded-full object-cover mr-4"
+                                />
+                                <div>
+                                    <h3 className="font-bold text-lg">{testi.name}</h3>
+                                    <p className="text-sm text-[#B35F2C]">{testi.role}</p>
+                                </div>
                             </div>
+                            <p className="text-sm">{testi.message}</p>
                         </div>
-                        <p className="text-sm">{testi.message}</p>
-                    </div>
+                    </SwiperSlide>
                 ))}
-            </div>
-
-            {/* Inline animations */}
-            <style>
-                {`
-          @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-          }
-        `}
-            </style>
+            </Swiper>
         </section>
     );
 };

@@ -24,7 +24,7 @@ const Offers = () => {
     ];
 
     return (
-        <section className="bg-[#FFF5E1] px-6 md:px-16 lg:px-24 py-20 relative">
+        <section className="relative bg-[#FFF5E1] px-6 md:px-16 lg:px-24 pt-20 pb-36 overflow-hidden">
             <h2
                 className="text-4xl sm:text-5xl font-extrabold text-[#4B0000] text-center mb-12 drop-shadow-lg"
                 style={{ animation: "fadeInUp 1s ease forwards" }}
@@ -32,7 +32,7 @@ const Offers = () => {
                 Special Offers
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
                 {offers.map((offer, index) => (
                     <div
                         key={offer.id}
@@ -60,7 +60,22 @@ const Offers = () => {
                 ))}
             </div>
 
-            {/* Inline animations */}
+            {/* ✅ Curved bottom divider */}
+            <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+                <svg
+                    className="relative block w-full h-20 text-[#4B0000]"
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 1440 320"
+                >
+                    <path
+                        fill="currentColor"
+                        d="M0,192L48,186.7C96,181,192,171,288,181.3C384,192,480,224,576,234.7C672,245,768,235,864,213.3C960,192,1056,160,1152,149.3C1248,139,1344,149,1392,154.7L1440,160V320H0Z"
+                    ></path>
+                </svg>
+            </div>
+
+            {/* Animations */}
             <style>
                 {`
           @keyframes fadeInUp {

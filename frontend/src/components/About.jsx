@@ -3,7 +3,7 @@ import AboutImg from "../assets/burger.png";
 
 const About = () => {
     return (
-        <section className="relative bg-gradient-to-r from-[#4B0000] to-[#6A1A1A] text-white px-6 md:px-16 lg:px-24 py-28 overflow-hidden">
+        <section id="about" className="relative bg-gradient-to-r from-[#4B0000] to-[#6A1A1A] text-white px-6 md:px-16 lg:px-24 py-28 overflow-hidden">
 
             {/* Top curve (as before) */}
             <div className="absolute top-0 left-0 w-full overflow-hidden leading-none">

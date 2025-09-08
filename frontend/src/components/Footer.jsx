@@ -3,7 +3,7 @@ import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
 
 const Footer = () => {
     return (
-        <footer className="bg-[#4B0000] text-white py-12 px-6 md:px-16 lg:px-24">
+        <footer id="footer" className="bg-[#4B0000] text-white py-12 px-6 md:px-16 lg:px-24 w-full mt-auto">
             <div className="flex flex-col md:flex-row justify-between items-start gap-12">
 
                 {/* Brand & Description */}
@@ -18,15 +18,9 @@ const Footer = () => {
                 <div className="md:w-1/3">
                     <h2 className="font-bold mb-4 text-lg">Contact Us</h2>
                     <ul className="space-y-2 text-[#FFB89C]">
-                        <li className="flex items-center gap-2">
-                            <MapPin className="w-5 h-5" /> 123 Food Street, Dhaka, Bangladesh
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <Phone className="w-5 h-5" /> +880 1234 567890
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <Mail className="w-5 h-5" /> info@foodly.com
-                        </li>
+                        <li className="flex items-center gap-2"><MapPin className="w-5 h-5" /> 123 Food Street, Dhaka, Bangladesh</li>
+                        <li className="flex items-center gap-2"><Phone className="w-5 h-5" /> +880 1234 567890</li>
+                        <li className="flex items-center gap-2"><Mail className="w-5 h-5" /> info@foodly.com</li>
                     </ul>
                 </div>
 
@@ -46,9 +40,7 @@ const Footer = () => {
             <div className="border-t border-[#FFB89C]/50 mt-8"></div>
 
             {/* Copyright */}
-            <p className="text-center text-sm text-[#FFB89C] mt-4">
-                &copy; {new Date().getFullYear()} Foodly. All rights reserved.
-            </p>
+            <p className="text-center text-sm text-[#FFB89C] mt-4">&copy; {new Date().getFullYear()} Foodly. All rights reserved.</p>
         </footer>
     );
 };

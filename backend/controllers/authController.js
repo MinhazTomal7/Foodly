@@ -1,54 +1,69 @@
-const User = require("../models/User");
-const jwt = require("jsonwebtoken");
+import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
-// Generate JWT
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
-    });
-};
 
-// 👉 Register User
-exports.registerUser = async (req, res) => {
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,       // SSL
+    secure: true,    // must be true for port 465
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // Gmail App Password
+    },
+});
+
+
+
+// Generate 6 digit OTP
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+// Signup Controller
+export const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        const userExists = await User.findOne({ email });
-        if (userExists) return res.status(400).json({ message: "User already exists" });
+        // check existing user
+        let user = await User.findOne({ email });
+        if (user) return res.status(400).json({ message: "User already exists" });
 
-        const user = await User.create({ name, email, password });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const otp = generateOTP();
 
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user._id),
+        user = new User({ name, email, password: hashedPassword, otp });
+        await user.save();
+
+        // send OTP mail
+        await transporter.sendMail({
+            from: `"Foodly" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: "Verify your Foodly account",
+            text: `Your OTP code is ${otp}`,
         });
-    } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message });
+
+        res.status(201).json({ message: "User registered. OTP sent to email" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
-// 👉 Login User
-exports.loginUser = async (req, res) => {
+// Verify OTP
+export const verifyOTP = async (req, res) => {
     try {
-        const { email, password } = req.body;
-
+        const { email, otp } = req.body;
         const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-        const isMatch = await user.matchPassword(password);
-        if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+        if (!user) return res.status(400).json({ message: "User not found" });
+        if (user.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
 
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user._id),
-        });
-    } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message });
+        user.isVerified = true;
+        user.otp = null; // clear OTP
+        await user.save();
+
+        res.json({ message: "Account verified successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
