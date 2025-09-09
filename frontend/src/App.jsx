@@ -22,7 +22,7 @@ function App() {
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/profile" element={<Profile />} />
-                        <Route path="/otp" element={<VerifyOTP />} />
+                        <Route path="/verify-otp" element={<VerifyOTP />} />
 
                     </Routes>
                 </main>

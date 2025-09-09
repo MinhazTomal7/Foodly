@@ -1,42 +1,42 @@
 import { create } from "zustand";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";  // ✅ correct import
 
-const BASE_URL = "http://localhost:5050/api/auth"; // Update if backend URL changes
+const BASE_URL = "http://localhost:5050/api/auth";
 
 const useUserStore = create((set, get) => ({
-    user: null,          // Stores logged-in user info
-    token: null,         // JWT token
-    otpSent: false,      // Flag to control OTP step
-    loading: false,      // API loading state
-    error: null,         // API error message
+    user: null,
+    token: null,
+    otpSent: false,
+    loading: false,
+    error: null,
 
-    // Signup and request OTP
-    signup: async (name, email, password) => {
+    // Signup + request OTP
+    sendSignupOTP: async (name, email, password) => {
         set({ loading: true, error: null });
         try {
             const res = await axios.post(`${BASE_URL}/signup`, { name, email, password });
-
-            if (res.data.message.includes("OTP sent")) {
-                set({ otpSent: true }); // Move to OTP step
-            }
-
-            set({ loading: false });
-            return { success: true, data: res.data };
+            set({ otpSent: true, loading: false });
+            return { success: true, message: res.data.message };
         } catch (err) {
-            const errorMsg = err.response?.data?.message || err.message;
-            set({ loading: false, error: errorMsg });
-            return { success: false, error: errorMsg };
+            set({ loading: false, error: err.response?.data?.message || err.message });
+            return { error: get().error };
         }
     },
 
     // Verify OTP
-    verifyOTP: async (email, otp) => {
+    verifyUserOTP: async (email, otp) => {
         set({ loading: true, error: null });
         try {
             const res = await axios.post(`${BASE_URL}/verify-otp`, { email, otp });
 
             if (res.data.token) {
-                set({ token: res.data.token, user: { email }, otpSent: false });
+                const decoded = jwtDecode(res.data.token); // ✅ updated
+                set({
+                    token: res.data.token,
+                    user: { _id: decoded.id, email: decoded.email },
+                    otpSent: false,
+                });
                 localStorage.setItem("userToken", res.data.token);
             }
 
@@ -49,18 +49,41 @@ const useUserStore = create((set, get) => ({
         }
     },
 
-    // Logout user
+    // Login user
+    loginUser: async (email, password) => {
+        set({ loading: true, error: null });
+        try {
+            const res = await axios.post(`${BASE_URL}/login`, { email, password });
+
+            const decoded = jwtDecode(res.data.token); // ✅ updated
+            set({
+                token: res.data.token,
+                user: { _id: decoded.id, email: decoded.email },
+                loading: false,
+            });
+            localStorage.setItem("userToken", res.data.token);
+
+            return { success: true, data: res.data };
+        } catch (err) {
+            const errorMsg = err.response?.data?.message || err.message;
+            set({ loading: false, error: errorMsg });
+            return { success: false, error: errorMsg };
+        }
+    },
+
+    // Logout
     logout: () => {
         set({ user: null, token: null, otpSent: false });
         localStorage.removeItem("userToken");
+        window.location.reload();
     },
 
-    // Load user token from localStorage
+    // Load from storage
     loadUserFromStorage: () => {
         const token = localStorage.getItem("userToken");
         if (token) {
-            // Optionally decode JWT to get user info
-            set({ token, user: { email: "Unknown" } });
+            const decoded = jwtDecode(token); // ✅ updated
+            set({ token, user: { _id: decoded.id, email: decoded.email } });
         }
     },
 }));

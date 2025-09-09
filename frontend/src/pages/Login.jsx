@@ -1,18 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useUserStore from "../store/UserStore"; // import your Zustand store
 
 const Login = () => {
     const navigate = useNavigate();
+    const { loginUser, loading, error } = useUserStore(); // destructure login function and state
     const [form, setForm] = useState({ email: "", password: "" });
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        alert("Login successful (demo).");
-        navigate("/profile");
+        const res = await loginUser(form.email, form.password);
+        if (res.success) {
+            navigate("/"); // redirect on successful login
+        }
     };
 
     return (
@@ -21,6 +25,9 @@ const Login = () => {
                 <h2 className="text-3xl font-extrabold text-[#4B0000] text-center mb-6">
                     Login
                 </h2>
+
+                {error && <p className="text-red-500 text-center mb-2">{error}</p>}
+
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
                     <input
                         type="email"
@@ -42,11 +49,13 @@ const Login = () => {
                     />
                     <button
                         type="submit"
-                        className="bg-[#4B0000] text-white font-bold py-2 rounded-xl hover:bg-[#550000] transition"
+                        disabled={loading}
+                        className="bg-[#4B0000] text-white font-bold py-2 rounded-xl hover:bg-[#550000] transition disabled:opacity-50"
                     >
-                        Login
+                        {loading ? "Logging in..." : "Login"}
                     </button>
                 </form>
+
                 <p className="text-center text-sm mt-4">
                     Don't have an account?{" "}
                     <span

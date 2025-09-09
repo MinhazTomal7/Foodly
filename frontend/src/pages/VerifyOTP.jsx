@@ -14,7 +14,7 @@ const VerifyOTP = () => {
         const res = await verifyUserOTP(email, otp);
         if (!res.error) {
             alert("OTP Verified! Signup complete.");
-            navigate("/login");
+            navigate("/");
         }
     };
 

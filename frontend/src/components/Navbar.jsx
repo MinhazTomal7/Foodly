@@ -6,7 +6,7 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [cartCount, setCartCount] = useState(3); // demo cart count
-    const [isLoggedIn, setIsLoggedIn] = useState(true); // mock login state
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // mock login state
     const navigate = useNavigate();
     const location = useLocation();
 

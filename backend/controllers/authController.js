@@ -1,31 +1,28 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465,       // SSL
-    secure: true,    // must be true for port 465
+    port: 465,
+    secure: true,
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Gmail App Password
+        pass: process.env.EMAIL_PASS,
     },
 });
 
+const generateOTP = () =>
+    Math.floor(100000 + Math.random() * 900000).toString();
 
-
-// Generate 6 digit OTP
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
-
-// Signup Controller
+// ✅ Signup Controller
 export const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // check existing user
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ message: "User already exists" });
 
@@ -35,7 +32,6 @@ export const signup = async (req, res) => {
         user = new User({ name, email, password: hashedPassword, otp });
         await user.save();
 
-        // send OTP mail
         await transporter.sendMail({
             from: `"Foodly" <${process.env.EMAIL_USER}>`,
             to: email,
@@ -49,7 +45,7 @@ export const signup = async (req, res) => {
     }
 };
 
-// Verify OTP
+// ✅ Verify OTP Controller
 export const verifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -59,7 +55,7 @@ export const verifyOTP = async (req, res) => {
         if (user.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
 
         user.isVerified = true;
-        user.otp = null; // clear OTP
+        user.otp = null;
         await user.save();
 
         res.json({ message: "Account verified successfully" });
@@ -67,3 +63,34 @@ export const verifyOTP = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// ✅ Login Controller
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Find user
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
+        // Check if verified
+        if (!user.isVerified) return res.status(400).json({ message: "Account not verified" });
+
+        // Compare password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+        // Generate JWT
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
+            expiresIn: "7d",
+        });
+
+        res.json({
+            token,
+            user: { id: user._id, name: user.name, email: user.email },
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
