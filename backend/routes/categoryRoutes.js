@@ -1,12 +1,23 @@
-const express = require("express");
+import express from "express";
+import {
+    getAllCategories,
+    getCategoryById,
+    addCategory,
+    updateCategory,
+    deleteCategory
+} from "../controllers/categoryController.js";
+
+import upload from "../middleware/upload.js"; // Multer middleware
+
 const router = express.Router();
-const { createCategory, getCategories } = require("../controllers/categoryController");
-const { protect } = require("../middleware/authMiddleware");
 
-// Admin creates category
-router.post("/", protect, createCategory);
+// Public routes
+router.get("/", getAllCategories);
+router.get("/:id", getCategoryById);
 
-// Users get all categories
-router.get("/", getCategories);
+// Admin routes (with file upload)
+router.post("/", upload.single("img"), /* adminAuth, */ addCategory);
+router.put("/:id", upload.single("img"), /* adminAuth, */ updateCategory);
+router.delete("/:id", /* adminAuth, */ deleteCategory);
 
-module.exports = router;
+export default router;

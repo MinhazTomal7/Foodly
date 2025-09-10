@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import useUserStore from "./store/UserStore";
+
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Footer from "./components/Footer.jsx";
@@ -10,6 +13,13 @@ import Profile from "./pages/Profile.jsx";
 import VerifyOTP from "./pages/VerifyOTP.jsx";
 
 function App() {
+    const loadUserFromStorage = useUserStore((state) => state.loadUserFromStorage);
+
+    // ✅ Initialize user from localStorage on app mount
+    useEffect(() => {
+        loadUserFromStorage();
+    }, [loadUserFromStorage]);
+
     return (
         <div className="flex flex-col min-h-screen">
             <BrowserRouter>
@@ -23,7 +33,6 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/verify-otp" element={<VerifyOTP />} />
-
                     </Routes>
                 </main>
                 <Footer />

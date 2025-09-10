@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";  // ✅ correct import
+import { jwtDecode as jwt_decode } from "jwt-decode";
+
 
 const BASE_URL = "http://localhost:5050/api/auth";
 
@@ -31,7 +32,7 @@ const useUserStore = create((set, get) => ({
             const res = await axios.post(`${BASE_URL}/verify-otp`, { email, otp });
 
             if (res.data.token) {
-                const decoded = jwtDecode(res.data.token); // ✅ updated
+                const decoded = jwt_decode(res.data.token);
                 set({
                     token: res.data.token,
                     user: { _id: decoded.id, email: decoded.email },
@@ -55,7 +56,7 @@ const useUserStore = create((set, get) => ({
         try {
             const res = await axios.post(`${BASE_URL}/login`, { email, password });
 
-            const decoded = jwtDecode(res.data.token); // ✅ updated
+            const decoded = jwt_decode(res.data.token);
             set({
                 token: res.data.token,
                 user: { _id: decoded.id, email: decoded.email },
@@ -75,15 +76,19 @@ const useUserStore = create((set, get) => ({
     logout: () => {
         set({ user: null, token: null, otpSent: false });
         localStorage.removeItem("userToken");
-        window.location.reload();
     },
 
-    // Load from storage
+    // ✅ Load user from localStorage on page reload
     loadUserFromStorage: () => {
         const token = localStorage.getItem("userToken");
         if (token) {
-            const decoded = jwtDecode(token); // ✅ updated
-            set({ token, user: { _id: decoded.id, email: decoded.email } });
+            try {
+                const decoded = jwt_decode(token);
+                set({ token, user: { _id: decoded.id, email: decoded.email } });
+            } catch {
+                localStorage.removeItem("userToken");
+                set({ token: null, user: null });
+            }
         }
     },
 }));
