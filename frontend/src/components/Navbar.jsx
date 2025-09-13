@@ -1,24 +1,32 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingCart, User } from "lucide-react";
 import useUserStore from "../store/UserStore";
+import useCartStore from "../store/cartStore";
 
-const Navbar = () => {
+function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    const [cartCount, setCartCount] = useState(3); // demo cart count
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Get login state and logout function from Zustand
     const { user, logout } = useUserStore();
     const isLoggedIn = !!user;
+
+    const { items, fetchCart } = useCartStore();
+    const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 50);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    useEffect(() => {
+        if (isLoggedIn) fetchCart();
+    }, [isLoggedIn, fetchCart]);
 
     const handleNavigateOrScroll = (id) => {
         if (location.pathname === "/") {
@@ -139,6 +147,6 @@ const Navbar = () => {
             )}
         </header>
     );
-};
+}
 
 export default Navbar;
