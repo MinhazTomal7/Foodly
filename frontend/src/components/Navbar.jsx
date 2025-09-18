@@ -32,11 +32,14 @@ function Navbar() {
         if (location.pathname === "/") {
             const element = document.getElementById(id);
             if (element) element.scrollIntoView({ behavior: "smooth" });
-            setIsOpen(false);
         } else {
             navigate("/", { state: { scrollToId: id } });
-            setIsOpen(false);
         }
+    };
+
+    const handleMobileNavigate = (callback) => {
+        callback();       // navigate or scroll
+        setIsOpen(false); // close mobile menu
     };
 
     const handleLogout = () => {
@@ -108,13 +111,13 @@ function Navbar() {
             {/* Mobile Menu */}
             {isOpen && (
                 <div className="md:hidden absolute top-16 left-0 w-full bg-[#4B0000]/90 flex flex-col items-center gap-6 py-6 text-[#FFF5E1] px-6">
-                    <button onClick={() => handleNavigateOrScroll("home")} className="hover:text-[#FFB89C] transition">Home</button>
-                    <button onClick={() => navigate("/menu")} className="hover:text-[#FFB89C] transition">Menu</button>
-                    <button onClick={() => handleNavigateOrScroll("about")} className="hover:text-[#FFB89C] transition">About</button>
-                    <button onClick={() => handleNavigateOrScroll("footer")} className="hover:text-[#FFB89C] transition">Contact</button>
+                    <button onClick={() => handleMobileNavigate(() => handleNavigateOrScroll("home"))} className="hover:text-[#FFB89C] transition">Home</button>
+                    <button onClick={() => handleMobileNavigate(() => navigate("/menu"))} className="hover:text-[#FFB89C] transition">Menu</button>
+                    <button onClick={() => handleMobileNavigate(() => handleNavigateOrScroll("about"))} className="hover:text-[#FFB89C] transition">About</button>
+                    <button onClick={() => handleMobileNavigate(() => handleNavigateOrScroll("footer"))} className="hover:text-[#FFB89C] transition">Contact</button>
 
                     {/* Mobile Cart */}
-                    <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
+                    <div className="relative cursor-pointer" onClick={() => handleMobileNavigate(() => navigate("/cart"))}>
                         <ShoppingCart className="w-5 h-5 hover:text-[#FFB89C]" />
                         {cartCount > 0 && (
                             <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">
@@ -126,19 +129,19 @@ function Navbar() {
                     {/* Mobile Login/Profile */}
                     {!isLoggedIn ? (
                         <>
-                            <button onClick={() => navigate("/login")} className="px-4 py-1 bg-[#FFB89C] text-[#4B0000] font-bold rounded-full hover:bg-[#E6A974] transition">
+                            <button onClick={() => handleMobileNavigate(() => navigate("/login"))} className="px-4 py-1 bg-[#FFB89C] text-[#4B0000] font-bold rounded-full hover:bg-[#E6A974] transition">
                                 Login
                             </button>
-                            <button onClick={() => navigate("/signup")} className="px-4 py-1 bg-[#4B0000] text-white font-bold rounded-full hover:bg-[#550000] transition">
+                            <button onClick={() => handleMobileNavigate(() => navigate("/signup"))} className="px-4 py-1 bg-[#4B0000] text-white font-bold rounded-full hover:bg-[#550000] transition">
                                 Signup
                             </button>
                         </>
                     ) : (
                         <div className="flex flex-col gap-2 items-center">
-                            <button onClick={() => navigate("/profile")} className="flex items-center gap-1 px-4 py-1 bg-[#FFB89C] text-[#4B0000] font-bold rounded-full hover:bg-[#E6A974] transition">
+                            <button onClick={() => handleMobileNavigate(() => navigate("/profile"))} className="flex items-center gap-1 px-4 py-1 bg-[#FFB89C] text-[#4B0000] font-bold rounded-full hover:bg-[#E6A974] transition">
                                 <User className="w-4 h-4" /> Profile
                             </button>
-                            <button onClick={handleLogout} className="px-4 py-1 bg-[#4B0000] text-white font-bold rounded-full hover:bg-[#550000] transition">
+                            <button onClick={() => handleMobileNavigate(handleLogout)} className="px-4 py-1 bg-[#4B0000] text-white font-bold rounded-full hover:bg-[#550000] transition">
                                 Logout
                             </button>
                         </div>

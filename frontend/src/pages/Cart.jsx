@@ -1,10 +1,13 @@
 // src/components/Cart.jsx
 import { useEffect } from "react";
 import { ShoppingCart, Trash2 } from "lucide-react";
+import axios from "axios";
 import useCartStore from "../store/CartStore.js";
+import useUserStore from "../store/UserStore.js";
 
 const Cart = () => {
     const { items, totalPrice, fetchCart, updateItem, removeItem } = useCartStore();
+    const { user, loadUserFromStorage } = useUserStore();
 
     useEffect(() => {
         fetchCart();
@@ -16,7 +19,40 @@ const Cart = () => {
     };
     const handleRemove = (item) => removeItem(item.product._id);
 
-    const handlePayNow = () => alert("Redirecting to Payment Gateway...");
+    // 🔹 Pay Now handler (SSLCommerz)
+    const handlePayNow = async () => {
+        try {
+            // Load user token if using JWT
+            const token = localStorage.getItem("userToken");
+            if (!token) {
+                alert("You must be logged in to pay.");
+                return;
+            }
+
+            const res = await axios.post(
+                "http://localhost:5050/api/init",
+                {}, // no body needed
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // send token
+                    },
+                    withCredentials: true, // only if backend uses cookies
+                }
+            );
+
+            if (res.data?.GatewayPageURL) {
+                window.location.href = res.data.GatewayPageURL;
+            } else {
+                alert("Payment initiation failed. Check console.");
+                console.error(res.data);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error initiating payment. Check console for details.");
+        }
+    };
+
+    // 🔹 Cash on Delivery
     const handleCashOnDelivery = () => alert("Order Confirmed! Delivery on the way.");
 
     return (

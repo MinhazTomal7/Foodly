@@ -5,13 +5,15 @@ import { ShoppingCart } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import useMenuStore from "../store/menuStore";
 import useCartStore from "../store/cartStore";
-import useUserStore from "../store/userStore"; // your login store
+import useUserStore from "../store/userStore";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
 
 const Menu = () => {
     const navigate = useNavigate();
     const { categories, products, fetchMenuData } = useMenuStore();
     const { addToCart } = useCartStore();
-    const { user } = useUserStore(); // check if logged in
+    const { user } = useUserStore();
 
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchTerm, setSearchTerm] = useState("");
@@ -43,13 +45,10 @@ const Menu = () => {
             return;
         }
 
-        const toastId = `cart-${product._id}`; // unique id per product
+        const toastId = `cart-${product._id}`;
         try {
             await addToCart(product._id, 1);
-
-            // Dismiss previous toast if exists
             toast.dismiss(toastId);
-
             toast.success(
                 <div className="flex flex-col">
                     <span>{product.title} added to cart!</span>
@@ -66,6 +65,13 @@ const Menu = () => {
             console.error(err);
             toast.error("Failed to add to cart.");
         }
+    };
+
+    const getImageUrl = (imgPath) => {
+        if (!imgPath) return "/default-item.png";
+        return imgPath.startsWith("/uploads")
+            ? `${BASE_URL}${imgPath}`
+            : imgPath;
     };
 
     return (
@@ -122,7 +128,7 @@ const Menu = () => {
                             className="bg-[#FFF5E1] rounded-2xl shadow-md overflow-hidden hover:scale-105 transition-transform min-h-[380px]"
                         >
                             <img
-                                src={product.img.startsWith("http") ? product.img : `http://localhost:5050/${product.img}`}
+                                src={getImageUrl(product.img)}
                                 alt={product.title}
                                 className="w-full h-48 object-cover rounded-t-2xl"
                             />
@@ -144,7 +150,9 @@ const Menu = () => {
                         </div>
                     ))
                 ) : (
-                    <p className="text-center col-span-full text-[#4B0000] font-semibold">No products found.</p>
+                    <p className="text-center col-span-full text-[#4B0000] font-semibold">
+                        No products found.
+                    </p>
                 )}
             </div>
         </div>
@@ -152,3 +160,4 @@ const Menu = () => {
 };
 
 export default Menu;
+

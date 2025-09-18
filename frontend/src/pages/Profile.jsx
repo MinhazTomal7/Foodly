@@ -7,8 +7,7 @@ import toast, { Toaster } from "react-hot-toast";
 const Profile = () => {
     const navigate = useNavigate();
     const { user, loadUserFromStorage } = useUserStore();
-    const { profile, fetchProfile, updateProfile, loading, error } =
-        useProfileStore();
+    const { profile, fetchProfile, updateProfile, loading, error } = useProfileStore();
 
     const [localProfile, setLocalProfile] = useState({
         name: "",
@@ -17,7 +16,7 @@ const Profile = () => {
         address: "",
     });
 
-    // Load user from storage on mount
+    // Load user from storage if not already loaded
     useEffect(() => {
         if (!user) loadUserFromStorage();
     }, [user, loadUserFromStorage]);
@@ -56,21 +55,20 @@ const Profile = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#FFF5E1] px-4">
-            {/* Toast container */}
+        <div className="min-h-screen flex items-center justify-center bg-[#FFF5E1] px-4 py-16 sm:py-20 md:py-24">
             <Toaster position="top-right" reverseOrder={false} />
 
-            <div className="bg-white shadow-xl rounded-3xl p-8 w-full max-w-md border border-[#B35F2C]/30">
-                <h2 className="text-3xl font-extrabold text-[#4B0000] text-center mb-6">
+            <div className="bg-white shadow-xl rounded-3xl p-6 sm:p-8 w-full max-w-md border border-[#B35F2C]/30">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-[#4B0000] text-center mb-6">
                     Your Profile
                 </h2>
 
                 {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-4 sm:gap-5">
                     {/* Name */}
                     <div>
-                        <label className="block text-[#B35F2C] font-semibold mb-1">
+                        <label className="block text-[#B35F2C] font-semibold mb-1 text-sm sm:text-base">
                             Name
                         </label>
                         <input
@@ -78,13 +76,13 @@ const Profile = () => {
                             name="name"
                             value={localProfile.name || ""}
                             onChange={handleChange}
-                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#4B0000] outline-none"
+                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#4B0000] outline-none text-sm sm:text-base"
                         />
                     </div>
 
                     {/* Email */}
                     <div>
-                        <label className="block text-[#B35F2C] font-semibold mb-1">
+                        <label className="block text-[#B35F2C] font-semibold mb-1 text-sm sm:text-base">
                             Email
                         </label>
                         <input
@@ -92,13 +90,13 @@ const Profile = () => {
                             name="email"
                             value={localProfile.email || ""}
                             disabled
-                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed"
+                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed text-sm sm:text-base"
                         />
                     </div>
 
                     {/* Phone */}
                     <div>
-                        <label className="block text-[#B35F2C] font-semibold mb-1">
+                        <label className="block text-[#B35F2C] font-semibold mb-1 text-sm sm:text-base">
                             Phone
                         </label>
                         <input
@@ -106,27 +104,28 @@ const Profile = () => {
                             name="phone"
                             value={localProfile.phone || ""}
                             onChange={handleChange}
-                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#4B0000] outline-none"
+                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#4B0000] outline-none text-sm sm:text-base"
                         />
                     </div>
 
                     {/* Address */}
                     <div>
-                        <label className="block text-[#B35F2C] font-semibold mb-1">
+                        <label className="block text-[#B35F2C] font-semibold mb-1 text-sm sm:text-base">
                             Address
                         </label>
                         <textarea
                             name="address"
                             value={localProfile.address || ""}
                             onChange={handleChange}
-                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#4B0000] outline-none"
+                            className="w-full border border-[#B35F2C]/40 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#4B0000] outline-none text-sm sm:text-base resize-none"
+                            rows={3}
                         />
                     </div>
 
                     {/* Save Button */}
                     <button
                         onClick={handleSave}
-                        className="mt-6 bg-[#4B0000] text-white font-bold py-3 rounded-xl hover:bg-[#550000] transition"
+                        className="mt-4 sm:mt-6 bg-[#4B0000] text-white font-bold py-3 rounded-xl hover:bg-[#550000] transition text-sm sm:text-base"
                         disabled={loading}
                     >
                         {loading ? "Saving..." : "Update Profile"}

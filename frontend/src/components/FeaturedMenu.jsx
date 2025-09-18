@@ -1,72 +1,90 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import MenuItemImg from "../assets/burger.png"; // replace with actual images
+import { ShoppingCart } from "lucide-react";
+import useMenuStore from "../store/menuStore";
+import useCartStore from "../store/CartStore";
+import useUserStore from "../store/userStore";
+import toast, { Toaster } from "react-hot-toast";
 
 const FeaturedMenu = () => {
-    const menuItems = [
-        { id: 1, name: "Cheesy Burger", desc: "Juicy beef with melted cheese", price: "$8", img: MenuItemImg },
-        { id: 2, name: "Crispy Fries", desc: "Golden and crispy", price: "$4", img: MenuItemImg },
-        { id: 3, name: "Veggie Pizza", desc: "Fresh veggies with cheese", price: "$10", img: MenuItemImg },
-        { id: 4, name: "Chocolate Shake", desc: "Rich and creamy", price: "$5", img: MenuItemImg },
-    ];
+    const { categories, products, fetchMenuData, loading, error } = useMenuStore();
+    const { addToCart } = useCartStore();
+    const { user } = useUserStore();
+    const [featuredItems, setFeaturedItems] = useState([]);
+
+    useEffect(() => {
+        fetchMenuData();
+    }, [fetchMenuData]);
+
+    useEffect(() => {
+        if (categories.length && products.length) {
+            const items = categories
+                .map((cat) => products.find((p) => p.category?._id === cat._id))
+                .filter(Boolean)
+                .slice(0, 4);
+            setFeaturedItems(items);
+        }
+    }, [categories, products]);
+
+    const handleAddToCart = (product) => {
+        if (!user) {
+            toast.error("You must be logged in to add to cart!");
+            return;
+        }
+        addToCart(product._id, 1);
+        toast.success(`${product.title} added to cart!`);
+    };
+
+    if (loading) return <p className="text-center py-10">Loading...</p>;
+    if (error) return <p className="text-center py-10 text-red-600">{error}</p>;
 
     return (
         <section className="bg-white px-6 md:px-16 lg:px-24 py-20">
-            <h2
-                className="text-4xl sm:text-5xl font-extrabold text-[#4B0000] text-center mb-12 drop-shadow-lg"
-                style={{ animation: "fadeInUp 1s ease forwards" }}
-            >
+            <Toaster position="top-right" />
+            <h2 className="text-4xl sm:text-5xl font-extrabold text-[#4B0000] text-center mb-12 drop-shadow-lg">
                 Popular Items
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                {menuItems.map(item => (
+                {featuredItems.map((item) => (
                     <div
-                        key={item.id}
-                        className="bg-[#FFF5E1] rounded-3xl overflow-hidden shadow-lg hover:scale-105 transition-transform relative"
-                        style={{ animation: "fadeInUp 1s ease forwards", animationDelay: `${item.id * 0.2}s`, opacity: 0 }}
+                        key={item._id}
+                        className="bg-[#FFF5E1] rounded-3xl overflow-hidden shadow-lg hover:scale-105 transition-transform relative flex flex-col"
                     >
                         <img
-                            src={item.img}
-                            alt={item.name}
+                            src={
+                                item.img
+                                    ? `http://localhost:5050/uploads/${item.img}`
+                                    : "/default-item.png"
+                            }
+                            alt={item.title}
                             className="w-full h-48 object-cover rounded-t-3xl"
-                            style={{ animation: "float 3s ease-in-out infinite alternate" }}
                         />
-                        <div className="p-4">
-                            <h3 className="text-xl font-bold text-[#4B0000] mb-2">{item.name}</h3>
-                            <p className="text-[#B35F2C] text-sm mb-4">{item.desc}</p>
-                            <span className="text-[#4B0000] font-semibold">{item.price}</span>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <h3 className="text-lg font-bold text-[#4B0000] mb-1">{item.title}</h3>
+                                <p className="text-[#B35F2C] text-sm mb-2 line-clamp-2">{item.description}</p>
+                                <span className="text-[#4B0000] font-semibold">${item.price}</span>
+                            </div>
+                            <button
+                                onClick={() => handleAddToCart(item)}
+                                className="mt-3 px-3 py-1.5 bg-[#4B0000] text-white text-sm font-semibold rounded-full hover:bg-[#550000] transition flex items-center justify-center gap-1.5"
+                            >
+                                <ShoppingCart className="w-4 h-4" /> Add
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* View Full Menu Button */}
             <div className="text-center">
                 <Link
                     to="/menu"
                     className="inline-block px-10 py-4 bg-[#4B0000] text-white font-bold rounded-full hover:bg-[#550000] transition"
-                    style={{ animation: "fadeInUp 1s ease 0.8s forwards", opacity: 0 }}
                 >
                     View Full Menu
                 </Link>
             </div>
-
-            {/* Inline keyframes */}
-            <style>
-                {`
-          @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-          }
-
-          @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-          }
-        `}
-            </style>
         </section>
     );
 };
