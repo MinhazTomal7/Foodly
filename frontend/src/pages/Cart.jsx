@@ -5,6 +5,8 @@ import axios from "axios";
 import useCartStore from "../store/CartStore.js";
 import useUserStore from "../store/UserStore.js";
 
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
+
 const Cart = () => {
     const { items, totalPrice, fetchCart, updateItem, removeItem } = useCartStore();
     const { user, loadUserFromStorage } = useUserStore();
@@ -22,7 +24,6 @@ const Cart = () => {
     // 🔹 Pay Now handler (SSLCommerz)
     const handlePayNow = async () => {
         try {
-            // Load user token if using JWT
             const token = localStorage.getItem("userToken");
             if (!token) {
                 alert("You must be logged in to pay.");
@@ -30,13 +31,13 @@ const Cart = () => {
             }
 
             const res = await axios.post(
-                "http://localhost:5050/api/init",
-                {}, // no body needed
+                `${BASE_URL}/api/init`,
+                {},
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`, // send token
+                        Authorization: `Bearer ${token}`,
                     },
-                    withCredentials: true, // only if backend uses cookies
+                    withCredentials: true,
                 }
             );
 
@@ -54,6 +55,11 @@ const Cart = () => {
 
     // 🔹 Cash on Delivery
     const handleCashOnDelivery = () => alert("Order Confirmed! Delivery on the way.");
+
+    const getImageUrl = (imgPath) => {
+        if (!imgPath) return "/default-item.png";
+        return imgPath.startsWith("/uploads") ? `${BASE_URL}${imgPath}` : imgPath;
+    };
 
     return (
         <div className="px-6 md:px-16 lg:px-24 py-28 bg-[#FFF5E1] min-h-screen">
@@ -73,7 +79,7 @@ const Cart = () => {
                             className="bg-white rounded-2xl shadow-md overflow-hidden hover:scale-105 transition-transform min-h-[150px] flex flex-col sm:flex-row items-center p-4 gap-4"
                         >
                             <img
-                                src={item.product.img}
+                                src={getImageUrl(item.product.img)}
                                 alt={item.product.title}
                                 className="w-28 h-28 rounded-2xl object-cover shadow-md"
                             />

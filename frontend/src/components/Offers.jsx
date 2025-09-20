@@ -1,9 +1,12 @@
+// src/components/Offers.jsx
 import React, { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import useMenuStore from "../store/menuStore";
-import useCartStore from "../store/CartStore";
+import useCartStore from "../store/cartStore";
 import useUserStore from "../store/userStore";
 import toast, { Toaster } from "react-hot-toast";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
 
 const Offers = () => {
     const { products, fetchMenuData, loading, error } = useMenuStore();
@@ -17,7 +20,10 @@ const Offers = () => {
 
     useEffect(() => {
         if (products.length) {
-            const comboCategory = products.find(p => p.category?.name === "Combos & Offers")?.category;
+            const comboCategory = products.find(
+                (p) => p.category?.name === "Combos & Offers"
+            )?.category;
+
             if (comboCategory) {
                 const comboProducts = products.filter(
                     (p) => p.category?._id === comboCategory._id
@@ -34,6 +40,13 @@ const Offers = () => {
         }
         addToCart(offer._id, 1);
         toast.success(`${offer.title} added to cart!`);
+    };
+
+    const getImageUrl = (imgPath) => {
+        if (!imgPath) return "/default-item.png";
+        return imgPath.startsWith("/uploads")
+            ? `${BASE_URL}${imgPath}`
+            : imgPath;
     };
 
     if (loading) return <p className="text-center py-10">Loading...</p>;
@@ -60,16 +73,14 @@ const Offers = () => {
                             opacity: 0,
                         }}
                     >
-                        <img
-                            src={
-                                offer.img
-                                    ? `http://localhost:5050/uploads/${offer.img}`
-                                    : "/default-item.png"
-                            }
-                            alt={offer.title}
-                            className="w-full h-48 object-cover rounded-t-3xl"
-                            style={{ animation: "float 3s ease-in-out infinite alternate" }}
-                        />
+                        <div className="w-full h-48 flex items-center justify-center">
+                            <img
+                                src={getImageUrl(offer.img)}
+                                alt={offer.title}
+                                className="max-h-48 object-contain rounded-t-3xl"
+                                style={{ animation: "float 3s ease-in-out infinite alternate" }}
+                            />
+                        </div>
                         <div className="p-6 flex flex-col">
                             <h3 className="text-lg font-bold text-[#4B0000] mb-1">{offer.title}</h3>
                             <p className="text-[#B35F2C] text-sm mb-2 line-clamp-2">{offer.description}</p>
@@ -89,4 +100,3 @@ const Offers = () => {
 };
 
 export default Offers;
-

@@ -125,20 +125,25 @@ const Menu = () => {
                     filteredProducts.map((product) => (
                         <div
                             key={product._id}
-                            className="bg-[#FFF5E1] rounded-2xl shadow-md overflow-hidden hover:scale-105 transition-transform min-h-[380px]"
+                            className="bg-[#FFF5E1] rounded-2xl shadow-md overflow-hidden hover:scale-105 transition-transform min-h-[420px]"
                         >
-                            <img
-                                src={getImageUrl(product.img)}
-                                alt={product.title}
-                                className="w-full h-48 object-cover rounded-t-2xl"
-                            />
+                            {/* Image area same color as card */}
+                            <div className="w-full h-60 flex items-center justify-center">
+                                <img
+                                    src={getImageUrl(product.img)}
+                                    alt={product.title}
+                                    className="max-h-60 object-contain rounded-t-2xl"
+                                />
+                            </div>
                             <div className="p-4 flex flex-col justify-between h-[150px]">
                                 <div>
                                     <h3 className="text-lg font-bold text-[#4B0000] mb-1">{product.title}</h3>
                                     <p className="text-[#B35F2C] text-sm mb-2">{product.description}</p>
                                 </div>
                                 <div className="flex justify-between items-center mt-2">
-                                    <span className="text-md font-bold text-[#4B0000]">${product.price.toFixed(2)}</span>
+                                    <span className="text-md font-bold text-[#4B0000]">
+                                        ${product.price.toFixed(2)}
+                                    </span>
                                     <button
                                         className="flex items-center gap-2 px-4 py-1 bg-[#4B0000] text-white font-bold rounded-full hover:bg-[#550000] transition"
                                         onClick={() => handleAddToCart(product)}
@@ -160,4 +165,3 @@ const Menu = () => {
 };
 
 export default Menu;
-

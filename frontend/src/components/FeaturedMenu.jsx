@@ -1,13 +1,16 @@
+// src/components/FeaturedMenu.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import useMenuStore from "../store/menuStore";
-import useCartStore from "../store/CartStore";
+import useCartStore from "../store/cartStore";
 import useUserStore from "../store/userStore";
 import toast, { Toaster } from "react-hot-toast";
 
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
+
 const FeaturedMenu = () => {
-    const { categories, products, fetchMenuData, loading, error } = useMenuStore();
+    const { products, fetchMenuData, loading, error } = useMenuStore();
     const { addToCart } = useCartStore();
     const { user } = useUserStore();
     const [featuredItems, setFeaturedItems] = useState([]);
@@ -17,14 +20,11 @@ const FeaturedMenu = () => {
     }, [fetchMenuData]);
 
     useEffect(() => {
-        if (categories.length && products.length) {
-            const items = categories
-                .map((cat) => products.find((p) => p.category?._id === cat._id))
-                .filter(Boolean)
-                .slice(0, 4);
-            setFeaturedItems(items);
+        if (products.length) {
+            // Take first 4 products (later can filter featured=true from backend)
+            setFeaturedItems(products.slice(0, 4));
         }
-    }, [categories, products]);
+    }, [products]);
 
     const handleAddToCart = (product) => {
         if (!user) {
@@ -33,6 +33,13 @@ const FeaturedMenu = () => {
         }
         addToCart(product._id, 1);
         toast.success(`${product.title} added to cart!`);
+    };
+
+    const getImageUrl = (imgPath) => {
+        if (!imgPath) return "/default-item.png";
+        return imgPath.startsWith("/uploads")
+            ? `${BASE_URL}${imgPath}`
+            : imgPath;
     };
 
     if (loading) return <p className="text-center py-10">Loading...</p>;
@@ -51,15 +58,14 @@ const FeaturedMenu = () => {
                         key={item._id}
                         className="bg-[#FFF5E1] rounded-3xl overflow-hidden shadow-lg hover:scale-105 transition-transform relative flex flex-col"
                     >
-                        <img
-                            src={
-                                item.img
-                                    ? `http://localhost:5050/uploads/${item.img}`
-                                    : "/default-item.png"
-                            }
-                            alt={item.title}
-                            className="w-full h-48 object-cover rounded-t-3xl"
-                        />
+                        {/* Image area now has same background as card */}
+                        <div className="w-full h-48 flex items-center justify-center">
+                            <img
+                                src={getImageUrl(item.img)}
+                                alt={item.title}
+                                className="max-h-48 object-contain rounded-t-3xl"
+                            />
+                        </div>
                         <div className="p-4 flex-1 flex flex-col justify-between">
                             <div>
                                 <h3 className="text-lg font-bold text-[#4B0000] mb-1">{item.title}</h3>

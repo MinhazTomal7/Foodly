@@ -1,5 +1,6 @@
 import React from "react";
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
     return (
@@ -12,6 +13,13 @@ const Footer = () => {
                     <p className="text-[#FFB89C] text-sm">
                         Delicious meals delivered fresh to your doorstep. Taste the love in every bite!
                     </p>
+                    {/* Admin Login Link */}
+                    <Link
+                        to="/admin/login"
+                        className="mt-4 inline-flex items-center gap-1 text-sm text-[#FFB89C] hover:text-white transition"
+                    >
+                        <Lock className="w-4 h-4" /> Admin Login
+                    </Link>
                 </div>
 
                 {/* Contact Info */}
