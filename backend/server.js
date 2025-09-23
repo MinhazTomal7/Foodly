@@ -8,6 +8,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
 
@@ -20,6 +21,8 @@ app.use(cors({
     credentials: true,
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // Connect DB
 connectDB();
@@ -31,6 +34,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api", paymentRoutes);
+app.use("/api/orders", orderRoutes);
 
 
 

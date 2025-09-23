@@ -45,6 +45,7 @@ function Navbar() {
     const handleLogout = () => {
         logout();
         navigate("/");
+        window.location.reload();
     };
 
     const navbarBg =
@@ -68,8 +69,8 @@ function Navbar() {
             <nav className="hidden md:flex gap-6 md:gap-10 text-lg text-[#FFF5E1] items-center relative">
                 <button onClick={() => handleNavigateOrScroll("home")} className="hover:text-[#FFB89C] transition">Home</button>
                 <button onClick={() => navigate("/menu")} className="hover:text-[#FFB89C] transition">Menu</button>
-                <button onClick={() => handleNavigateOrScroll("about")} className="hover:text-[#FFB89C] transition">About</button>
                 <button onClick={() => handleNavigateOrScroll("footer")} className="hover:text-[#FFB89C] transition">Contact</button>
+                <button onClick={() => navigate("/orders")} className="hover:text-[#FFB89C] transition">My Orders</button>
 
                 {/* Cart Icon */}
                 <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
@@ -113,8 +114,8 @@ function Navbar() {
                 <div className="md:hidden absolute top-16 left-0 w-full bg-[#4B0000]/90 flex flex-col items-center gap-6 py-6 text-[#FFF5E1] px-6">
                     <button onClick={() => handleMobileNavigate(() => handleNavigateOrScroll("home"))} className="hover:text-[#FFB89C] transition">Home</button>
                     <button onClick={() => handleMobileNavigate(() => navigate("/menu"))} className="hover:text-[#FFB89C] transition">Menu</button>
-                    <button onClick={() => handleMobileNavigate(() => handleNavigateOrScroll("about"))} className="hover:text-[#FFB89C] transition">About</button>
                     <button onClick={() => handleMobileNavigate(() => handleNavigateOrScroll("footer"))} className="hover:text-[#FFB89C] transition">Contact</button>
+                    <button onClick={() => handleMobileNavigate(() => navigate("/orders"))} className="hover:text-[#FFB89C] transition">My Orders</button>
 
                     {/* Mobile Cart */}
                     <div className="relative cursor-pointer" onClick={() => handleMobileNavigate(() => navigate("/cart"))}>

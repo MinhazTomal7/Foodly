@@ -6,7 +6,9 @@ const PaymentFail = () => {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-red-100">
             <h1 className="text-4xl font-bold text-red-800 mb-6">Payment Failed</h1>
-            <p className="mb-6 text-red-700">Something went wrong with your payment.</p>
+            <p className="mb-6 text-red-700">
+                Something went wrong with your payment. Please try again.
+            </p>
             <div className="flex gap-4">
                 <button
                     onClick={() => navigate("/")}

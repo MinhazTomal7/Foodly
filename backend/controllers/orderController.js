@@ -1,56 +1,43 @@
-const Order = require("../models/Order");
-const MenuItem = require("../models/MenuItem");
+import Order from "../models/OrderModel.js";
+import Cart from "../models/CartModel.js";
 
-// 👉 Create Order
-exports.createOrder = async (req, res) => {
+// Create Cash on Delivery order
+export const createCODOrder = async (req, res) => {
     try {
-        const { items, promoCode } = req.body;
+        const userId = req.user._id;
+        const cart = await Cart.findOne({ user: userId }).populate("items.product");
+        if (!cart || cart.items.length === 0) return res.status(400).json({ message: "Cart is empty" });
 
-        // Calculate totalPrice
-        let totalPrice = 0;
-        for (const i of items) {
-            const menuItem = await MenuItem.findById(i.menuItem);
-            if (!menuItem) return res.status(404).json({ message: "Menu item not found" });
-            totalPrice += menuItem.price * i.quantity;
-        }
+        const totalAmount = cart.items.reduce((sum, i) => sum + i.product.price * i.quantity, 0).toFixed(2);
 
-        const order = await Order.create({
-            user: req.user._id,
-            items,
-            totalPrice,
-            promoCode,
+        const order = new Order({
+            user: userId,
+            items: cart.items.map((i) => ({
+                product: i.product._id,
+                quantity: i.quantity,
+                price: i.product.price,
+            })),
+            totalAmount,
+            transactionId: "COD-" + Date.now(),
+            status: "pending",
+            paymentMethod: "COD",
         });
 
-        res.status(201).json(order);
+        await order.save();
+        await Cart.findOneAndUpdate({ user: userId }, { items: [] });
+
+        res.status(201).json({ message: "COD order created", order });
     } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: err.message });
     }
 };
 
-// 👉 Get User Orders
-exports.getMyOrders = async (req, res) => {
+// Get all orders of logged-in user
+export const getUserOrders = async (req, res) => {
     try {
-        const orders = await Order.find({ user: req.user._id })
-            .populate("items.menuItem", "name price")
-            .sort({ createdAt: -1 });
-        res.json(orders);
+        const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 }).populate("items.product");
+        res.json({ orders });
     } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message });
-    }
-};
-
-// 👉 Get All Orders (Admin)
-exports.getAllOrders = async (req, res) => {
-    try {
-        if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied" });
-
-        const orders = await Order.find()
-            .populate("user", "name email")
-            .populate("items.menuItem", "name price")
-            .sort({ createdAt: -1 });
-
-        res.json(orders);
-    } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ message: "Server Error" });
     }
 };

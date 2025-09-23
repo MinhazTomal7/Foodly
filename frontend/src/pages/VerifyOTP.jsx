@@ -13,8 +13,7 @@ const VerifyOTP = () => {
         e.preventDefault();
         const res = await verifyUserOTP(email, otp);
         if (!res.error) {
-            alert("OTP Verified! Signup complete.");
-            navigate("/");
+            navigate("/profile"); // 🔥 auto-login, go to profile
         }
     };
 

@@ -51,6 +51,14 @@ const AdminLogin = () => {
                         Login
                     </button>
                 </form>
+
+                {/* ✅ Back to Home Button */}
+                <button
+                    onClick={() => navigate("/")}
+                    className="mt-4 w-full px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition"
+                >
+                    Back to Home
+                </button>
             </div>
         </div>
     );

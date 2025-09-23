@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "../store/UserStore"; // your Zustand store
+import useUserStore from "../store/UserStore";
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Signup = () => {
         e.preventDefault();
         const res = await sendSignupOTP(form.name, form.email, form.password);
         if (!res.error) {
-            navigate("/verify-otp", { state: { email: form.email } }); // pass email to OTP page
+            navigate("/verify-otp", { state: { email: form.email } });
         }
     };
 

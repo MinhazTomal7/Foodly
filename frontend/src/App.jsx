@@ -16,6 +16,7 @@ import PaymentFail from "./pages/PaymentFail.jsx";
 
 import AdminLogin from "./pages/AdminLogin.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import Orders from "./pages/Orders.jsx";
 
 const ScrollToTop = () => {
     const { pathname } = useLocation();
@@ -53,8 +54,11 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/verify-otp" element={<VerifyOTP />} />
-                    <Route path="/PaymentSuccess" element={<PaymentSuccess />} />
-                    <Route path="/PaymentFail" element={<PaymentFail />} />
+                    <Route path="/payment-success" element={<PaymentSuccess />} />
+                    <Route path="/payment-fail" element={<PaymentFail />} />
+                    <Route path="/orders" element={<Orders />} />
+
+
 
                     {/* Admin Routes */}
                     <Route path="/admin/login" element={<AdminLogin />} />

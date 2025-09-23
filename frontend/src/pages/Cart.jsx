@@ -1,7 +1,7 @@
-// src/components/Cart.jsx
 import { useEffect } from "react";
 import { ShoppingCart, Trash2 } from "lucide-react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import useCartStore from "../store/CartStore.js";
 import useUserStore from "../store/UserStore.js";
 
@@ -10,6 +10,7 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
 const Cart = () => {
     const { items, totalPrice, fetchCart, updateItem, removeItem } = useCartStore();
     const { user, loadUserFromStorage } = useUserStore();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchCart();
@@ -25,41 +26,49 @@ const Cart = () => {
     const handlePayNow = async () => {
         try {
             const token = localStorage.getItem("userToken");
-            if (!token) {
-                alert("You must be logged in to pay.");
-                return;
-            }
+            if (!token) return alert("You must be logged in to pay.");
 
             const res = await axios.post(
                 `${BASE_URL}/api/init`,
                 {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    withCredentials: true,
-                }
+                { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
             );
 
-            if (res.data?.GatewayPageURL) {
-                window.location.href = res.data.GatewayPageURL;
-            } else {
-                alert("Payment initiation failed. Check console.");
-                console.error(res.data);
-            }
+            if (res.data?.GatewayPageURL) window.location.href = res.data.GatewayPageURL;
+            else alert("Payment initiation failed.");
         } catch (err) {
             console.error(err);
-            alert("Error initiating payment. Check console for details.");
+            alert("Error initiating payment.");
         }
     };
 
     // 🔹 Cash on Delivery
-    const handleCashOnDelivery = () => alert("Order Confirmed! Delivery on the way.");
+    const handleCashOnDelivery = async () => {
+        try {
+            const token = localStorage.getItem("userToken");
+            if (!token) return alert("You must be logged in to place COD order.");
 
-    const getImageUrl = (imgPath) => {
-        if (!imgPath) return "/default-item.png";
-        return imgPath.startsWith("/uploads") ? `${BASE_URL}${imgPath}` : imgPath;
+            const res = await axios.post(
+                `${BASE_URL}/api/orders/cod`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+            );
+
+            if (res.data?.order) {
+                // ✅ Redirect to Orders page and reload
+                navigate("/orders");
+                window.location.reload();
+            } else {
+                alert("COD order failed.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error creating COD order.");
+        }
     };
+
+    const getImageUrl = (imgPath) =>
+        !imgPath ? "/default-item.png" : imgPath.startsWith("/uploads") ? `${BASE_URL}${imgPath}` : imgPath;
 
     return (
         <div className="px-6 md:px-16 lg:px-24 py-28 bg-[#FFF5E1] min-h-screen">
@@ -68,9 +77,7 @@ const Cart = () => {
             </h1>
 
             {items.length === 0 ? (
-                <p className="text-center text-[#4B0000] font-semibold text-lg">
-                    Your cart is empty.
-                </p>
+                <p className="text-center text-[#4B0000] font-semibold text-lg">Your cart is empty.</p>
             ) : (
                 <div className="flex flex-col gap-6 max-w-5xl mx-auto">
                     {items.map((item) => (
@@ -120,11 +127,8 @@ const Cart = () => {
                         </div>
                     ))}
 
-                    {/* Total & Checkout */}
                     <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-2xl shadow-md p-6">
-                        <span className="text-2xl font-bold text-[#4B0000]">
-                            Total: ${totalPrice.toFixed(2)}
-                        </span>
+                        <span className="text-2xl font-bold text-[#4B0000]">Total: ${totalPrice.toFixed(2)}</span>
                         <div className="flex gap-4 flex-wrap">
                             <button
                                 onClick={handlePayNow}
