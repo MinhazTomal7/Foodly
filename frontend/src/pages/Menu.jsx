@@ -7,8 +7,9 @@ import useMenuStore from "../store/MenuStore.js";
 import useCartStore from "../store/CartStore.js";
 import useUserStore from "../store/UserStore.js";
 
-//fix
+
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
+
 
 const Menu = () => {
     const navigate = useNavigate();
