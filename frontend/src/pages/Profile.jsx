@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useProfileStore from "../store/ProfileStore";
-import useUserStore from "../store/UserStore";
+import useProfileStore from "../store/ProfileStore.js";
+import useUserStore from "../store/UserStore.js";
 import toast, { Toaster } from "react-hot-toast";
 
 const Profile = () => {

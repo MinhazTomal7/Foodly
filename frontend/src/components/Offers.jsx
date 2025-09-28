@@ -1,9 +1,9 @@
 // src/components/Offers.jsx
 import React, { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
-import useMenuStore from "../store/menuStore";
-import useCartStore from "../store/cartStore";
-import useUserStore from "../store/userStore";
+import useMenuStore from "../store/MenuStore.js";
+import useCartStore from "../store/CartStore.js";
+import useUserStore from "../store/UserStore.js";
 import toast, { Toaster } from "react-hot-toast";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";

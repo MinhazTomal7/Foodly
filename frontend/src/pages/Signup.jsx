@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "../store/UserStore";
+import useUserStore from "../store/UserStore.js";
 
 const Signup = () => {
     const navigate = useNavigate();

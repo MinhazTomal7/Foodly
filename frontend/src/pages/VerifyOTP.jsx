@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import useUserStore from "../store/UserStore";
+import useUserStore from "../store/UserStore.js";
 
 const VerifyOTP = () => {
     const navigate = useNavigate();
