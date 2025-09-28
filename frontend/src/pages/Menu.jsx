@@ -7,7 +7,7 @@ import useMenuStore from "../store/MenuStore.js";
 import useCartStore from "../store/CartStore.js";
 import useUserStore from "../store/UserStore.js";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "foodly-production-63fa.up.railway.app";
 
 const Menu = () => {
     const navigate = useNavigate();
