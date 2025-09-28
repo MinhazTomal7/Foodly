@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingCart, User } from "lucide-react";
-import useUserStore from "../store/UserStore";
-import useCartStore from "../store/cartStore";
+import useUserStore from "../store/UserStore.js";
+import useCartStore from "../store/CartStore.js";
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
