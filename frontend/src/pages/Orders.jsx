@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useUserStore from "../store/UserStore.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
+const BASE_URL = process.env.VITE_BACKEND_URL || "http://localhost:5050";
 
 const Orders = () => {
     const { user, loadUserFromStorage } = useUserStore();
