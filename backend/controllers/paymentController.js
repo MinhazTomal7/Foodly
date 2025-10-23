@@ -40,7 +40,7 @@ export const initPayment = async (req, res) => {
             total_amount,
             currency: process.env.CURRENCY,
             tran_id,
-            success_url: process.env.SUCCESS_URL, // ✅ will point to backend
+            success_url: process.env.TEST, // ✅ will point to backend
             fail_url: process.env.FAIL_URL,
             cancel_url: process.env.CANCEL_URL,
             ipn_url: process.env.IPN_URL,
