@@ -7,6 +7,11 @@ import Order from "../models/OrderModel.js";
 
 dotenv.config();
 
+// Determine frontend URL based on environment
+const FRONTEND_URL = process.env.NODE_ENV === "production"
+    ? "https://foodly-three.vercel.app"
+    : "http://localhost:5173";
+
 // Initialize Payment
 export const initPayment = async (req, res) => {
     try {
@@ -40,7 +45,7 @@ export const initPayment = async (req, res) => {
             total_amount,
             currency: process.env.CURRENCY,
             tran_id,
-            success_url: process.env.TEST, // ✅ will point to backend
+            success_url: process.env.SUCCESS_URL,
             fail_url: process.env.FAIL_URL,
             cancel_url: process.env.CANCEL_URL,
             ipn_url: process.env.IPN_URL,
@@ -78,21 +83,17 @@ export const initPayment = async (req, res) => {
 export const paymentSuccess = async (req, res) => {
     try {
         const tran_id = req.body?.tran_id || req.query?.tran_id;
-        if (!tran_id) {
-            return res.status(400).send("Transaction ID missing");
-        }
+        if (!tran_id) return res.status(400).send("Transaction ID missing");
 
         const order = await Order.findOne({ transactionId: tran_id });
         if (!order) return res.status(404).send("Order not found");
 
         order.status = "success";
         await order.save();
-
         await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
 
-        // ✅ Redirect to frontend
-        res.redirect(`${process.env.TEST}`);
-
+        // Redirect to frontend
+        res.redirect(`${FRONTEND_URL}/payment-success`);
     } catch (err) {
         console.error(err);
         res.status(500).send(err.message);
@@ -102,15 +103,13 @@ export const paymentSuccess = async (req, res) => {
 // Payment Fail
 export const paymentFail = async (req, res) => {
     try {
-        const tran_id = req.body.tran_id;
+        const tran_id = req.body?.tran_id || req.query?.tran_id;
         const order = await Order.findOne({ transactionId: tran_id });
         if (order) {
             order.status = "failed";
             await order.save();
         }
-
-        // ✅ Redirect to frontend
-        res.redirect("http://localhost:5173/payment-fail");
+        res.redirect(`${FRONTEND_URL}/payment-fail`);
     } catch (err) {
         console.error(err);
         res.status(500).send(err.message);
@@ -120,15 +119,13 @@ export const paymentFail = async (req, res) => {
 // Payment Cancel
 export const paymentCancel = async (req, res) => {
     try {
-        const tran_id = req.body.tran_id;
+        const tran_id = req.body?.tran_id || req.query?.tran_id;
         const order = await Order.findOne({ transactionId: tran_id });
         if (order) {
             order.status = "cancelled";
             await order.save();
         }
-
-        // ✅ Redirect to frontend
-        res.redirect("http://localhost:5173/payment-cancel");
+        res.redirect(`${FRONTEND_URL}/payment-cancel`);
     } catch (err) {
         console.error(err);
         res.status(500).send(err.message);
