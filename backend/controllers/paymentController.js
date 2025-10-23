@@ -7,10 +7,17 @@ import Order from "../models/OrderModel.js";
 
 dotenv.config();
 
-// Determine frontend URL based on environment
-const FRONTEND_URL = process.env.NODE_ENV === "production"
+// Determine environment URLs
+const isProd = process.env.NODE_ENV === "production";
+
+const FRONTEND_URL = isProd
     ? "https://foodly-three.vercel.app"
     : "http://localhost:5173";
+
+const SUCCESS_URL = isProd ? process.env.PROD_SUCCESS_URL : process.env.SUCCESS_URL;
+const FAIL_URL = isProd ? process.env.PROD_FAIL_URL : process.env.FAIL_URL;
+const CANCEL_URL = isProd ? process.env.PROD_CANCEL_URL : process.env.CANCEL_URL;
+const IPN_URL = isProd ? process.env.PROD_IPN_URL : process.env.IPN_URL;
 
 // Initialize Payment
 export const initPayment = async (req, res) => {
@@ -45,10 +52,10 @@ export const initPayment = async (req, res) => {
             total_amount,
             currency: process.env.CURRENCY,
             tran_id,
-            success_url: process.env.SUCCESS_URL,
-            fail_url: process.env.FAIL_URL,
-            cancel_url: process.env.CANCEL_URL,
-            ipn_url: process.env.IPN_URL,
+            success_url: SUCCESS_URL,
+            fail_url: FAIL_URL,
+            cancel_url: CANCEL_URL,
+            ipn_url: IPN_URL,
             emi_option: 0,
             cus_name: req.user.name,
             cus_email: req.user.email,
@@ -92,7 +99,6 @@ export const paymentSuccess = async (req, res) => {
         await order.save();
         await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
 
-        // Redirect to frontend
         res.redirect(`${FRONTEND_URL}/payment-success`);
     } catch (err) {
         console.error(err);
@@ -109,6 +115,7 @@ export const paymentFail = async (req, res) => {
             order.status = "failed";
             await order.save();
         }
+
         res.redirect(`${FRONTEND_URL}/payment-fail`);
     } catch (err) {
         console.error(err);
@@ -125,6 +132,7 @@ export const paymentCancel = async (req, res) => {
             order.status = "cancelled";
             await order.save();
         }
+
         res.redirect(`${FRONTEND_URL}/payment-cancel`);
     } catch (err) {
         console.error(err);
