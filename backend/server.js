@@ -18,17 +18,13 @@ const app = express();
 // Middleware
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://foodly-three.vercel.app",
+    "https://foodly-three.vercel.app"
 ];
 
-// Allow frontend requests + server-to-server callbacks
 app.use(cors({
     origin: function (origin, callback) {
-        // ✅ Allow requests with no origin (like SSLCommerz server callbacks)
-        if (!origin) return callback(null, true);
-
-        // ✅ Allow whitelisted origins or any vercel.app subdomain
-        if (allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+        // Allow no-origin requests (like from SSLCommerz)
+        if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
             callback(null, true);
         } else {
             console.log("❌ Blocked by CORS:", origin);
@@ -37,7 +33,6 @@ app.use(cors({
     },
     credentials: true,
 }));
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
