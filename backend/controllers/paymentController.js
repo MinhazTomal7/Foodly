@@ -91,7 +91,8 @@ export const paymentSuccess = async (req, res) => {
         await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
 
         // ✅ Redirect to frontend
-        res.redirect("http://localhost:5173/payment-success");
+        res.redirect(`${process.env.TEST}`);
+
     } catch (err) {
         console.error(err);
         res.status(500).send(err.message);
