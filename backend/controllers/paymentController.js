@@ -7,11 +7,19 @@ import Order from "../models/OrderModel.js";
 
 dotenv.config();
 
-// Initialize Payment
+const isProd = process.env.NODE_ENV === "production";
+
+// Helper function to pick correct URLs
+const getURL = (local, prod) => (isProd ? prod : local);
+
+// =======================
+// INIT PAYMENT
+// =======================
 export const initPayment = async (req, res) => {
     try {
         const userId = req.user._id;
         const cart = await Cart.findOne({ user: userId }).populate("items.product");
+
         if (!cart || cart.items.length === 0)
             return res.status(400).json({ message: "Cart is empty" });
 
@@ -40,10 +48,22 @@ export const initPayment = async (req, res) => {
             total_amount,
             currency: process.env.CURRENCY,
             tran_id,
-            success_url: process.env.PROD_SUCCESS_URL, // ✅ will point to backend
-            fail_url: process.env.FAIL_URL,
-            cancel_url: process.env.CANCEL_URL,
-            ipn_url: process.env.IPN_URL,
+            success_url: getURL(
+                process.env.SUCCESS_URL,
+                "https://foodly-backend-five.vercel.app/api/payment-success"
+            ),
+            fail_url: getURL(
+                process.env.FAIL_URL,
+                "https://foodly-backend-five.vercel.app/api/payment-fail"
+            ),
+            cancel_url: getURL(
+                process.env.CANCEL_URL,
+                "https://foodly-backend-five.vercel.app/api/payment-cancel"
+            ),
+            ipn_url: getURL(
+                process.env.IPN_URL,
+                "https://foodly-backend-five.vercel.app/api/PaymentIPN"
+            ),
             emi_option: 0,
             cus_name: req.user.name,
             cus_email: req.user.email,
@@ -65,22 +85,29 @@ export const initPayment = async (req, res) => {
         );
 
         if (!response.data.GatewayPageURL)
-            return res.status(500).json({ message: "Payment initiation failed", raw: response.data });
+            return res.status(500).json({
+                message: "Payment initiation failed",
+                raw: response.data,
+            });
 
-        res.json({ status: "success", GatewayPageURL: response.data.GatewayPageURL, tran_id });
+        res.json({
+            status: "success",
+            GatewayPageURL: response.data.GatewayPageURL,
+            tran_id,
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     }
 };
 
-// Payment Success
+// =======================
+// PAYMENT SUCCESS
+// =======================
 export const paymentSuccess = async (req, res) => {
     try {
         const tran_id = req.body?.tran_id || req.query?.tran_id;
-        if (!tran_id) {
-            return res.status(400).send("Transaction ID missing");
-        }
+        if (!tran_id) return res.status(400).send("Transaction ID missing");
 
         const order = await Order.findOne({ transactionId: tran_id });
         if (!order) return res.status(404).send("Order not found");
@@ -90,52 +117,72 @@ export const paymentSuccess = async (req, res) => {
 
         await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
 
-        // ✅ Redirect to frontend
-        res.redirect(`${process.env.PROD_SUCCESS_URL}`);
+        // ✅ Redirect to frontend (GET request)
+        const redirectURL = getURL(
+            "http://localhost:5173/payment-success",
+            process.env.PROD_SUCCESS_URL
+        );
 
+        return res.redirect(`${redirectURL}?tran_id=${tran_id}`);
     } catch (err) {
         console.error(err);
         res.status(500).send(err.message);
     }
 };
 
-// Payment Fail
+// =======================
+// PAYMENT FAIL
+// =======================
 export const paymentFail = async (req, res) => {
     try {
-        const tran_id = req.body.tran_id;
+        const tran_id = req.body?.tran_id;
         const order = await Order.findOne({ transactionId: tran_id });
+
         if (order) {
             order.status = "failed";
             await order.save();
         }
 
-        // ✅ Redirect to frontend
-        res.redirect("http://localhost:5173/payment-fail");
+        const redirectURL = getURL(
+            "http://localhost:5173/payment-fail",
+            process.env.PROD_FAIL_URL
+        );
+
+        return res.redirect(redirectURL);
     } catch (err) {
         console.error(err);
         res.status(500).send(err.message);
     }
 };
 
-// Payment Cancel
+// =======================
+// PAYMENT CANCEL
+// =======================
 export const paymentCancel = async (req, res) => {
     try {
-        const tran_id = req.body.tran_id;
+        const tran_id = req.body?.tran_id;
         const order = await Order.findOne({ transactionId: tran_id });
+
         if (order) {
             order.status = "cancelled";
             await order.save();
         }
 
-        // ✅ Redirect to frontend
-        res.redirect("http://localhost:5173/payment-cancel");
+        const redirectURL = getURL(
+            "http://localhost:5173/payment-cancel",
+            process.env.PROD_CANCEL_URL
+        );
+
+        return res.redirect(redirectURL);
     } catch (err) {
         console.error(err);
         res.status(500).send(err.message);
     }
 };
 
-// IPN Webhook
+// =======================
+// PAYMENT IPN (Webhook)
+// =======================
 export const paymentIPN = async (req, res) => {
     console.log("IPN Received:", req.body);
     res.json({ message: "IPN Received", data: req.body });
