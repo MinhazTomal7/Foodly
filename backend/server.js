@@ -21,20 +21,18 @@ const allowedOrigins = [
     "https://foodly-three.vercel.app"
 ];
 
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            // ✅ Allow requests with no origin or null (e.g. SSLCommerz, Postman)
-            if (!origin || origin === "null" || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
-                callback(null, true);
-            } else {
-                console.log("❌ Blocked by CORS:", origin);
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        credentials: true,
-    })
-);
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || origin === "null" || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+            callback(null, true);
+        } else {
+            console.log("❌ Blocked by CORS:", origin);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
+}));
+
 
 
 app.use(express.json());
