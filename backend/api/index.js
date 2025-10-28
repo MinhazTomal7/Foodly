@@ -15,8 +15,11 @@ import orderRoutes from "../routes/orderRoutes.js";
 dotenv.config();
 const app = express();
 
-// CORS
-const allowedOrigins = ["http://localhost:5173"];
+// CORS setup
+const allowedOrigins = [
+    "http://localhost:5173"
+];
+
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
@@ -31,8 +34,33 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect DB
-await connectDB(); // can be top-level await in ESM
+// Connect DB with caching for serverless
+let cached = global.mongo;
+if (!cached) {
+    cached = global.mongo = { conn: null, promise: null };
+}
+
+async function connectDBServerless() {
+    if (cached.conn) return cached.conn;
+    if (!cached.promise) {
+        cached.promise = connectDB().then((mongoose) => {
+            cached.conn = mongoose;
+            return cached.conn;
+        });
+    }
+    return cached.promise;
+}
+
+// Apply routes after DB connection
+app.use(async (req, res, next) => {
+    try {
+        await connectDBServerless();
+        next();
+    } catch (err) {
+        console.error("MongoDB connection error:", err);
+        res.status(500).send("Database connection failed");
+    }
+});
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -43,16 +71,16 @@ app.use("/api/cart", cartRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api/orders", orderRoutes);
 
+// Static uploads
 app.use("/uploads", express.static("uploads"));
 
 // Health check
 app.get("/", (req, res) => res.send("Backend running!"));
 
-// Export handler for Vercel serverless
-export const handler = serverless(app);
-
-// Local server
-if (!process.env.VERCEL) {
+// Export for serverless or run locally
+if (process.env.VERCEL) {
+    module.exports.handler = serverless(app);
+} else {
     const PORT = process.env.PORT || 5050;
     app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 }
