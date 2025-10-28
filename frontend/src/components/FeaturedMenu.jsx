@@ -6,10 +6,9 @@ import useMenuStore from "../store/MenuStore.js";
 import useCartStore from "../store/CartStore.js";
 import useUserStore from "../store/UserStore.js";
 import toast, { Toaster } from "react-hot-toast";
-import dotenv from "dotenv";
-dotenv.config();
 
-const BASE_URL = process.env.VITE_BACKEND_URL || "http://localhost:5050";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_URL  || "http://localhost:5050";
 
 const FeaturedMenu = () => {
     const { products, fetchMenuData, loading, error } = useMenuStore();
