@@ -1,3 +1,4 @@
+// api/index.js
 import express from "express";
 import serverless from "serverless-http";
 import dotenv from "dotenv";
@@ -34,16 +35,14 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect DB with caching for serverless
+// DB caching for serverless
 let cached = global.mongo;
-if (!cached) {
-    cached = global.mongo = { conn: null, promise: null };
-}
+if (!cached) cached = global.mongo = { conn: null, promise: null };
 
 async function connectDBServerless() {
     if (cached.conn) return cached.conn;
     if (!cached.promise) {
-        cached.promise = connectDB().then((mongoose) => {
+        cached.promise = connectDB().then(mongoose => {
             cached.conn = mongoose;
             return cached.conn;
         });
@@ -51,7 +50,7 @@ async function connectDBServerless() {
     return cached.promise;
 }
 
-// Apply routes after DB connection
+// Connect DB before routes
 app.use(async (req, res, next) => {
     try {
         await connectDBServerless();
@@ -71,13 +70,13 @@ app.use("/api/cart", cartRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api/orders", orderRoutes);
 
-// Static uploads
-app.use("/uploads", express.static("uploads"));
+// Serve static uploads locally only
+if (!process.env.VERCEL) app.use("/uploads", express.static("uploads"));
 
 // Health check
 app.get("/", (req, res) => res.send("Backend running!"));
 
-// Export for serverless or run locally
+// Vercel serverless or local server
 if (process.env.VERCEL) {
     module.exports.handler = serverless(app);
 } else {
