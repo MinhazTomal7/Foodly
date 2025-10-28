@@ -70,6 +70,9 @@ app.use("/api/cart", cartRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api/orders", orderRoutes);
 
+app.get("/health", (req, res) => res.status(200).send("Backend alive!"));
+
+
 // Serve static uploads locally only
 if (!process.env.VERCEL) app.use("/uploads", express.static("uploads"));
 
