@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useUserStore from "../store/UserStore.js";
-import dotenv from "dotenv";
-dotenv.config();
 
-const BASE_URL = process.env.VITE_BACKEND_URL || "http://localhost:5050";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5050";
 
 const Orders = () => {
     const { user, loadUserFromStorage } = useUserStore();
@@ -36,7 +34,6 @@ const Orders = () => {
             <h1 className="text-5xl font-extrabold text-[#4B0000] mb-16 text-center drop-shadow-lg">
                 My Orders
             </h1>
-
             {orders.length === 0 ? (
                 <p className="text-center text-[#4B0000] font-semibold text-lg">No orders yet.</p>
             ) : (
@@ -61,23 +58,19 @@ const Orders = () => {
                                                 : "bg-red-600"
                                     }`}
                                 >
-                                    {order.status === "success"
-                                        ? "Payment Success"
-                                        : order.status === "pending"
-                                            ? "Payment Pending"
-                                            : "Payment Failed"}
-                                </span>
+                  {order.status === "success"
+                      ? "Payment Success"
+                      : order.status === "pending"
+                          ? "Payment Pending"
+                          : "Payment Failed"}
+                </span>
                             </div>
-
                             <p>Total: ${order.totalAmount.toFixed(2)}</p>
-
                             <div className="flex flex-col gap-2">
                                 {order.items.map((item) => (
                                     <div key={item._id} className="flex justify-between">
                                         <span>{item.product.title}</span>
-                                        <span>
-                                            {item.quantity} x ${item.price.toFixed(2)}
-                                        </span>
+                                        <span>{item.quantity} x ${item.price.toFixed(2)}</span>
                                     </div>
                                 ))}
                             </div>
