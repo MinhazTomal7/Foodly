@@ -15,11 +15,8 @@ import orderRoutes from "../routes/orderRoutes.js";
 dotenv.config();
 const app = express();
 
-// CORS setup
-const allowedOrigins = [
-    "http://localhost:5173"
-];
-
+// CORS
+const allowedOrigins = ["http://localhost:5173"];
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
@@ -35,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect DB
-connectDB();
+await connectDB(); // can be top-level await in ESM
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -51,14 +48,11 @@ app.use("/uploads", express.static("uploads"));
 // Health check
 app.get("/", (req, res) => res.send("Backend running!"));
 
-// Detect if running on Vercel
-const isVercel = process.env.VERCEL;
+// Export handler for Vercel serverless
+export const handler = serverless(app);
 
-if (isVercel) {
-    // Export handler for serverless
-    module.exports.handler = serverless(app);
-} else {
-    // Start local server
+// Local server
+if (!process.env.VERCEL) {
     const PORT = process.env.PORT || 5050;
     app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 }
