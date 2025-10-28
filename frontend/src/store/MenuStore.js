@@ -1,8 +1,11 @@
-// src/store/menuStore.js
+// src/store/MenuStore.js
 import { create } from "zustand";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5050/api";
+// Use VITE_BACKEND_URL if set (Vercel), otherwise fallback to localhost
+const BASE_URL = import.meta.env.VITE_BACKEND_URL
+    ? `${import.meta.env.VITE_BACKEND_URL}/api`
+    : "http://localhost:5050/api";
 
 const useMenuStore = create((set) => ({
     categories: [],
@@ -24,7 +27,8 @@ const useMenuStore = create((set) => ({
                 loading: false
             });
         } catch (err) {
-            set({ error: err.message, loading: false });
+            console.error("Menu fetch error:", err);
+            set({ error: err.message || "Failed to fetch menu data", loading: false });
         }
     },
 }));
