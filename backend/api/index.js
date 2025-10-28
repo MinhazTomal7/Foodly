@@ -18,7 +18,8 @@ const app = express();
 
 // CORS setup
 const allowedOrigins = [
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://foodly-frontend-neon.vercel.app/"
 ];
 
 app.use(cors({
