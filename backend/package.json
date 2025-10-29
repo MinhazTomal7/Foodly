@@ -5,7 +5,7 @@
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
-    "bdev": "nodemon api/index.js"
+    "dev": "nodemon api/index.js"
   },
   "dependencies": {
     "axios": "^1.12.2",
