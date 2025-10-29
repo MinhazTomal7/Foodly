@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve -s dist -l 5050"
   },
+
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.11.0",
@@ -19,6 +20,7 @@
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.8.2",
     "react-scroll": "^1.9.3",
+    "serve": "^14.2.5",
     "swiper": "^11.2.10",
     "tailwindcss": "^4.1.13",
     "zustand": "^5.0.8"
