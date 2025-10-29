@@ -9,7 +9,6 @@
     "preview": "vite preview",
     "start": "serve -s dist -l 5050"
   },
-
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.11.0",
